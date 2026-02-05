@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Support Inbox | DuoGlobal Admin</title>
+    <meta name="theme-color" content="#0052CC">
+
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        :root {
+            --primary: #0052CC;
+            --primary-dark: #003E99;
+            --primary-gradient: linear-gradient(135deg, #0052CC 0%, #003380 100%);
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --text-grey: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #166534;
+            
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --shadow-card: 0 10px 30px rgba(0,0,0,0.06);
+            --shadow-float: 0 10px 30px rgba(0,82,204,0.3);
+            --border-radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url('assets/images/background.png') repeat, var(--bg-light);
+            background-size: 400px;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 30px;
+            padding-bottom: 120px; /* Space for bottom nav */
+            -webkit-font-smoothing: antialiased;
+            opacity: 0;
+            animation: fadeInPage 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInPage { to { opacity: 1; } }
+
+        /* PRELOADER */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .loader {
+            width: 40px; height: 40px; border: 4px solid var(--border);
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .header h1 { 
+            font-size: 1.8rem; font-weight: 700; color: var(--text-dark); 
+            letter-spacing: -0.5px;
+        }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-grey);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .btn-back:hover { color: var(--primary); background: rgba(0,82,204,0.05); }
+
+        /* FILTERS TOOLBAR */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            max-width: 1200px; margin: 0 auto 25px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+        }
+        .filter-btn {
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            background: var(--glass-bg);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-grey);
+            transition: var(--transition);
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(5px);
+        }
+        .filter-btn:hover { background: #f8fafc; color: var(--primary); transform: translateY(-2px); }
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 6px 15px rgba(0,82,204,0.25);
+            transform: translateY(-2px);
+        }
+
+        /* INBOX CARD */
+        .card {
+            background: var(--glass-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(255,255,255,0.8);
+            overflow: hidden;
+            max-width: 1200px; margin: 0 auto;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+        }
+
+        /* TABLE STYLES */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        
+        th {
+            background: rgba(248, 250, 252, 0.8);
+            text-align: left;
+            padding: 18px 24px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-grey);
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+        }
+        td {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+            vertical-align: top;
+            color: var(--text-dark);
+            transition: background 0.2s;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(241, 245, 249, 0.5); }
+
+        /* DATA CELLS */
+        .user-cell strong { display: block; margin-bottom: 3px; font-weight: 600; }
+        .user-cell span { font-size: 0.85rem; color: var(--text-grey); }
+        
+        .msg-preview {
+            max-width: 350px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-grey);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .msg-preview:hover { color: var(--primary); }
+        .msg-preview.expanded {
+            white-space: normal;
+            color: var(--text-dark);
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 5px;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-new { background: #fee2e2; color: #dc2626; }
+        .badge-replied { background: #dcfce7; color: #166534; }
+        .badge-read { background: #f1f5f9; color: #64748b; }
+
+        /* ACTION BUTTONS */
+        .btn-reply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0,82,204,0.2);
+        }
+        .btn-reply:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,82,204,0.3); }
+        
+        /* LOADING & EMPTY STATES */
+        .state-msg { text-align: center; padding: 40px; color: var(--text-grey); }
+        .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,82,204,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        
+        /* BOTTOM NAV (Auto-Hide) */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 500px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 25px; border-radius: 30px; z-index: 9999;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .bottom-nav.hidden { transform: translateX(-50%) translateY(200%); }
+
+        .nav-item { 
+            text-decoration: none; color: #94a3b8; display: flex; flex-direction: column; 
+            align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 600; transition: 0.3s;
+            flex: 1;
+        }
+        .nav-item i { font-size: 1.3rem; transition: 0.3s; }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item:hover i { transform: translateY(-2px); }
+        
+        .nav-item-center {
+            background: var(--primary-gradient); width: 54px; height: 54px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: white; margin-top: -30px; 
+            box-shadow: var(--shadow-float); border: 4px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .nav-item-center:hover { transform: scale(1.1) translateY(-5px); }
+        .nav-item-center i { font-size: 1.5rem; }
+
+        /* Hide the floating button properly when nav hides */
+        .bottom-nav.hidden .nav-item-center { transform: scale(0); }
+
+        /* Animations */
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.5rem; }
+            .filters { overflow-x: auto; padding-bottom: 5px; }
+            .filter-btn { white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <div class="header">
+        <h1>Support Inbox</h1>
+        <a href="admin-dashboard.html" class="btn-back"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div class="filters">
+        <button class="filter-btn active" data-filter="all">All Messages</button>
+        <button class="filter-btn" data-filter="new">Unread / New</button>
+        <button class="filter-btn" data-filter="replied">Replied</button>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="15%">Date</th>
+                        <th width="20%">User</th>
+                        <th width="15%">Subject</th>
+                        <th width="35%">Message</th>
+                        <th width="10%">Status</th>
+                        <th width="5%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesTable">
+                    <tr><td colspan="6" class="state-msg"><div class="spinner"></div><br><br>Loading messages...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="admin-dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i> <span>Home</span>
+        </a>
+        <a href="admin-users.html" class="nav-item">
+            <i class="fas fa-users"></i> <span>Users</span>
+        </a>
+        <a href="admin-add-profile.html" class="nav-item-center">
+            <i class="fas fa-plus"></i>
+        </a>
+        <a href="admin-settings.html" class="nav-item">
+            <i class="fas fa-cog"></i> <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- FIREBASE MODULE -->
+    <script type="module">
+        import { auth, db } from './config.js'; 
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+        import { 
+            collection, 
+            query, 
+            orderBy, 
+            onSnapshot, 
+            doc, 
+            updateDoc, 
+            getDoc 
+        } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+        let allMessages = [];
+        let currentFilter = 'all';
+        const preloader = document.getElementById('preloader');
+
+        // Remove Preloader
+        window.addEventListener('load', () => {
+            preloader.style.opacity = '0';
+            setTimeout(() => preloader.style.display = 'none', 500);
+        });
+
+        // 1. AUTH & ADMIN CHECK
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const u = await getDoc(doc(db, "users", user.uid));
+                    if (u.exists() && u.data().role === 'admin') {
+                        initMessagesListener();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } catch (e) {
+                    console.error("Auth Error", e);
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // 2. REAL-TIME LISTENER
+        function initMessagesListener() {
+            const q = query(collection(db, "support_messages"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                allMessages = [];
+                snapshot.forEach(docSnap => {
+                    allMessages.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderTable();
+            }, (error) => {
+                console.error("Error fetching messages:", error);
+                document.getElementById('messagesTable').innerHTML = `<tr><td colspan="6" class="state-msg" style="color:red">Error loading data.</td></tr>`;
+            });
+        }
+
+        // 3. RENDER LOGIC
+        function renderTable() {
+            const tbody = document.getElementById('messagesTable');
+            tbody.innerHTML = '';
+
+            // Filter logic
+            const filtered = allMessages.filter(msg => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'new') return msg.status === 'new';
+                if (currentFilter === 'replied') return msg.status === 'replied';
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="state-msg" style="font-style:italic;">No messages found in this category.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach((msg, index) => {
+                const date = msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleDateString() + ' ' + new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now';
+                
+                // Mailto Link Construction
+                const subjectLine = encodeURIComponent(`Re: ${msg.subject}`);
+                const bodyContent = encodeURIComponent(`\n\n\n--- Original Inquiry ---\nFrom: ${msg.name} (${msg.email})\nDate: ${date}\n\n${msg.message}`);
+                const mailto = `mailto:${msg.email}?subject=${subjectLine}&body=${bodyContent}`;
+
+                // Status Badge Logic
+                let badgeClass = 'badge-read';
+                if (msg.status === 'new') badgeClass = 'badge-new';
+                if (msg.status === 'replied') badgeClass = 'badge-replied';
+
+                // Animation Delay
+                const delay = index * 0.05;
+
+                const row = document.createElement('tr');
+                row.style.animation = `slideUp 0.4s ease forwards ${delay}s`;
+                row.style.opacity = '0'; // Start hidden for animation
+
+                row.innerHTML = `
+                    <td style="white-space:nowrap; color:var(--text-grey); font-size:0.85rem;">${date}</td>
+                    <td class="user-cell">
+                        <strong>${escapeHtml(msg.name)}</strong>
+                        <span>${escapeHtml(msg.email)}</span>
+                        ${msg.userId ? '<span style="color:var(--primary); font-size:0.7rem; font-weight:700; margin-left:5px;">(Member)</span>' : '<span style="font-size:0.7rem; margin-left:5px;">(Guest)</span>'}
+                    </td>
+                    <td style="font-weight:600; color:var(--text-dark);">${escapeHtml(msg.subject)}</td>
+                    <td>
+                        <div class="msg-preview" onclick="this.classList.toggle('expanded')" title="Click to expand">
+                            ${escapeHtml(msg.message)}
+                        </div>
+                    </td>
+                    <td><span class="badge ${badgeClass}">${msg.status.toUpperCase()}</span></td>
+                    <td style="white-space:nowrap;">
+                        <a href="${mailto}" class="btn-reply" data-id="${msg.id}">
+                            <i class="fas fa-reply"></i> Reply
+                        </a>
+                    </td>
+                `;
+                
+                // Add click listener to Reply button separately to handle status update
+                const replyBtn = row.querySelector('.btn-reply');
+                replyBtn.addEventListener('click', () => markAsReplied(msg.id));
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // 4. UTILITIES & ACTIONS
+        async function markAsReplied(docId) {
+            try {
+                // Update status in Firestore. 
+                // The 'onSnapshot' listener will automatically trigger a re-render of the table.
+                await updateDoc(doc(db, "support_messages", docId), {
+                    status: 'replied'
+                });
+                console.log("Message marked as replied.");
+            } catch (error) {
+                console.error("Error updating status:", error);
+            }
+        }
+
+        // Filter Buttons Logic
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderTable();
+            });
+        });
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+
+    <!-- Auto-Hide Bottom Nav Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bottomNav = document.getElementById('bottomNav');
+            let lastScroll = 0;
+
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                
+                if (currentScroll <= 0) {
+                    bottomNav.classList.remove('hidden');
+                } else {
+                    if (currentScroll > lastScroll && currentScroll > 50) {
+                        // Scrolling DOWN -> Hide
+                        bottomNav.classList.add('hidden');
+                    } else {
+                        // Scrolling UP -> Show
+                        bottomNav.classList.remove('hidden');
+                    }
+                }
+                lastScroll = currentScroll;
+            });
+            
+            if("serviceWorker" in navigator) {
+                navigator.serviceWorker.register("./service-worker.js").catch(e => console.log("SW Error:", e));
+            }
+        });
+    </script>
+</body>
+</html>

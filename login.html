@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sign In | DuoGlobal</title>
+    <meta name="theme-color" content="#0052CC">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        :root {
+            --primary-blue: #0052CC;
+            --primary-dark: #003E99;
+            --primary-gradient: linear-gradient(135deg, #0052CC 0%, #003380 100%);
+            --accent-pink: #FF6B6B;
+            --text-dark: #1e293b;
+            --text-grey: #64748b;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --error-red: #ef4444;
+            --success-green: #22c55e;
+            
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --shadow-lg: 0 20px 40px rgba(0, 50, 150, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {margin:0;padding:0;box-sizing:border-box;}
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url('assets/images/background.png') repeat, var(--bg-light);
+            background-size: 400px;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            opacity: 0;
+            animation: fadeInPage 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInPage { to { opacity: 1; } }
+
+        /* PRELOADER */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .loader {
+            width: 40px; height: 40px; border: 4px solid #e2e8f0;
+            border-top-color: var(--primary-blue); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Ambient Background blobs */
+        .ambient-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+        }
+        .shape-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: rgba(0, 82, 204, 0.15); animation-delay: 0s; }
+        .shape-2 { bottom: -10%; right: -10%; width: 350px; height: 350px; background: rgba(255, 107, 107, 0.1); animation-delay: 5s; }
+
+        @keyframes float { 
+            0% { transform: translate(0, 0); } 
+            50% { transform: translate(20px, 20px); } 
+            100% { transform: translate(0, 0); } 
+        }
+
+        /* ---- LOGIN CARD ---- */
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            animation: slideUp 0.6s ease-out backwards;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo-area { margin-bottom: 20px; transition: var(--transition); }
+        .logo-area:hover { transform: scale(1.05); }
+        .logo-area img { height: 60px; width: auto; margin-bottom: 12px; }
+        .logo-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--primary-blue); font-weight: 700; letter-spacing: -0.5px; }
+        
+        .welcome-text { font-size: 0.95rem; color: var(--text-grey); margin-bottom: 35px; line-height: 1.5; }
+
+        /* ---- FORM ELEMENTS ---- */
+        .form-group { position: relative; margin-bottom: 20px; text-align: left; }
+        
+        .form-label {
+            display: block; font-size: 0.85rem; font-weight: 600; 
+            color: var(--text-dark); margin-bottom: 8px; margin-left: 4px;
+        }
+
+        .input-wrapper { position: relative; }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 45px 14px 16px; /* Space for icons */
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.6);
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,82,204,0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Icons inside Input */
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .form-input:focus + .input-icon { color: var(--primary-blue); }
+        .input-icon:hover { color: var(--primary-blue); }
+
+        .forgot-pass {
+            display: block;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: 0.2s;
+        }
+        .forgot-pass:hover { text-decoration: underline; opacity: 0.8; }
+
+        /* ---- BUTTONS ---- */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,82,204,0.3);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,82,204,0.4); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .register-link {
+            margin-top: 35px;
+            font-size: 0.95rem;
+            color: var(--text-grey);
+        }
+        .register-link a { color: var(--text-dark); font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .register-link a:hover { color: var(--primary-blue); text-decoration: underline; }
+
+        /* ---- ALERTS ---- */
+        .alert-box {
+            background: #fee2e2;
+            color: var(--error-red);
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            display: none; /* Hidden by default */
+            align-items: center; gap: 10px;
+            border: 1px solid #fecaca;
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Spinner for Loading */
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2.5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Ambient Blobs -->
+    <div class="ambient-shape shape-1"></div>
+    <div class="ambient-shape shape-2"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            
+            <!-- Logo Section -->
+            <div class="logo-area">
+                <a href="index.html" style="text-decoration: none;">
+                    <img src="assets/images/logo.png" alt="DuoGlobal">
+                    <h2 class="logo-title">DuoGlobal</h2>
+                </a>
+            </div>
+            <p class="welcome-text">Welcome back, Gem. Please sign in to continue your journey.</p>
+
+            <!-- Error Alert -->
+            <div id="errorAlert" class="alert-box">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorMessage">Invalid email or password.</span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" class="form-input" placeholder="e.g. jane@example.com" required>
+                        <i class="fas fa-envelope input-icon" style="pointer-events: none;"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                        <!-- Eye Toggle -->
+                        <i class="fas fa-eye input-icon" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <a href="forgot-password.html" class="forgot-pass">Forgot Password?</a>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text">Sign In</span>
+                    <div class="spinner" id="btnSpinner"></div>
+                </button>
+            </form>
+
+            <div class="register-link">
+                Don't have an account? <a href="register.html">Create Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE LOGIC -->
+    <script type="module">
+        import { auth, db } from './config.js'; 
+        import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.querySelector('.btn-text');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const togglePassword = document.getElementById('togglePassword');
+        const preloader = document.getElementById('preloader');
+
+        // Remove Preloader
+        window.addEventListener('load', () => {
+            preloader.style.opacity = '0';
+            setTimeout(() => preloader.style.display = 'none', 500);
+        });
+
+        // Toggle Password Visibility
+        togglePassword.addEventListener('click', function () {
+            const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Handle Email/Password Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passInput.value;
+
+            // UI Loading State
+            setLoading(true);
+            hideError();
+
+            try {
+                // 1. Authenticate with Firebase Auth
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Check User Role in Firestore (Role-based Redirect)
+                // We check the 'users' collection for the 'role' field.
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    if (userData.role === 'admin') {
+                        window.location.href = "admin-dashboard.html";
+                    } else {
+                        window.location.href = "dashboard.html";
+                    }
+                } else {
+                    // Default fallback if no detailed user doc exists (assume normal user)
+                    window.location.href = "dashboard.html";
+                }
+
+            } catch (error) {
+                console.error("Login Error:", error);
+                let msg = "Login failed. Please try again.";
+                
+                // Friendly error messages
+                if(error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
+                if(error.code === 'auth/user-not-found') msg = "No account found with this email.";
+                if(error.code === 'auth/wrong-password') msg = "Incorrect password.";
+                if(error.code === 'auth/too-many-requests') msg = "Access disabled temporarily due to many failed login attempts.";
+                
+                showError(msg);
+                setLoading(false);
+            }
+        });
+
+        // Helper: Show Error
+        function showError(msg) {
+            errorMessage.innerText = msg;
+            errorAlert.style.display = 'flex';
+        }
+
+        // Helper: Hide Error
+        function hideError() {
+            errorAlert.style.display = 'none';
+        }
+
+        // Helper: Loading UI Toggle
+        function setLoading(isLoading) {
+            if(isLoading) {
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnSpinner.style.display = 'block';
+            } else {
+                submitBtn.disabled = false;
+                btnText.style.display = 'block';
+                btnSpinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

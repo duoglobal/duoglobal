@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DuoGlobal | Elite International Matchmaking</title>
+    <meta name="description" content="Connecting African elegance with global gentlemen. A curated, secure matchmaking agency for serious relationships.">
+    <meta name="theme-color" content="#0052CC">
+
+    <!-- PWA Manifest & Meta -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Brand Colors */
+            --primary-blue: #0052CC;
+            --primary-dark: #003E99;
+            --accent-pink: #FF6B6B;
+            --text-dark: #1a1a1a;
+            --text-grey: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --primary-gradient: linear-gradient(135deg, #0052CC 0%, #003E99 100%); /* Added for PWA Popup */
+            
+            /* UI Variables */
+            --shadow-sm: 0 4px 6px rgba(0,0,0,0.02);
+            --shadow-md: 0 10px 30px rgba(0,0,0,0.06);
+            --shadow-lg: 0 20px 40px rgba(0,50,150,0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            /* PWA Specific */
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * {margin:0;padding:0;box-sizing:border-box;}
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background: url('assets/images/background.png') repeat, var(--bg-light);
+            background-size: 400px;
+            overflow-x: hidden;
+            padding-bottom: 90px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        /* ---- ANIMATIONS ---- */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* ---- HEADER ---- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 15px 5%; position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--glass-border);
+            transition: transform 0.3s ease;
+        }
+        header.hidden { transform: translateY(-100%); }
+        
+        .logo-container { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .logo-container img { height: 40px; width: auto; object-fit: contain; }
+        .logo-title { font-size: 20px; font-weight: 700; color: var(--text-dark); letter-spacing: -0.5px; font-family: 'Playfair Display', serif; }
+        .logo-title span { color: var(--primary-blue); }
+
+        .header-actions .signin-btn {
+            text-decoration: none; color: var(--primary-blue); font-weight: 600;
+            padding: 8px 20px; border: 1.5px solid var(--primary-blue); border-radius: 50px;
+            transition: var(--transition); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+        }
+        .header-actions .signin-btn:hover { background: var(--primary-blue); color: #fff; transform: translateY(-2px); }
+
+        /* ---- HERO SECTION ---- */
+        .hero-section {
+            position: relative; height: 90vh; min-height: 600px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('assets/images/hero.png');
+            background-size: cover; background-position: center;
+            filter: blur(3px); transform: scale(1.05); z-index: 0;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 100%);
+            z-index: 1;
+        }
+        .hero-content { 
+            position: relative; z-index: 2; text-align: center; 
+            max-width: 800px; padding: 0 20px; 
+            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .hero-badge {
+            display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+            color: #fff; padding: 6px 16px; border-radius: 50px;
+            font-weight: 600; font-size: 0.8rem; margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px;
+        }
+        .hero-title { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 20px; }
+        .hero-subtitle {
+            color: #f1f5f9; font-size: clamp(1rem, 3vw, 1.2rem); line-height: 1.6; 
+            margin-bottom: 40px; font-weight: 400; text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+        }
+        .btn-primary {
+            background: var(--accent-pink); color: #fff; padding: 16px 40px; border-radius: 50px;
+            font-size: 1rem; font-weight: 600; text-decoration: none; box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+            transition: var(--transition); border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+            text-shadow: none;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(255, 107, 107, 0.6); }
+
+        /* ---- SECTIONS ---- */
+        .section { padding: 80px 20px; }
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 50px; }
+        .section-tag { color: var(--primary-blue); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; display: block; margin-bottom: 10px; }
+        .section-title { font-size: 2.5rem; color: var(--text-dark); font-weight: 700; }
+
+        /* ---- PROFILE GRID ---- */
+        .grid-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px; max-width: 1200px; margin: 0 auto;
+        }
+        .profile-card {
+            background: #fff; border-radius: var(--border-radius); overflow: hidden;
+            box-shadow: var(--shadow-sm); transition: var(--transition); position: relative;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .profile-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+        .card-img-wrap { height: 320px; position: relative; overflow: hidden; }
+        .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .profile-card:hover .card-img-wrap img { transform: scale(1.05); }
+        .blur-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex; align-items: flex-end; padding: 20px;
+        }
+        .card-body { padding: 20px; }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card-title { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+        .card-subtitle { font-size: 0.9rem; color: var(--text-grey); display: flex; align-items: center; gap: 5px; }
+        .btn-connect {
+            width: 100%; margin-top: 15px; padding: 12px;
+            background: var(--bg-light); color: var(--primary-blue); border: 1px solid var(--primary-blue);
+            border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 8px; text-decoration: none;
+        }
+        .btn-connect:hover { background: var(--primary-blue); color: #fff; }
+
+        /* ---- STEPS SECTION ---- */
+        .steps-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .step-box { text-align: center; padding: 30px; background: #fff; border-radius: 20px; box-shadow: var(--shadow-sm); }
+        .step-icon { width: 60px; height: 60px; background: rgba(0, 82, 204, 0.1); color: var(--primary-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 20px; }
+        .step-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; }
+        .step-desc { font-size: 0.9rem; color: var(--text-grey); line-height: 1.5; }
+
+        /* ---- FOOTER ---- */
+        .main-footer { background: #0f172a; color: #fff; padding: 60px 20px 120px 20px; }
+        .footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer-links { margin: 30px 0; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .footer-links a { color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
+        .footer-links a:hover { color: #fff; }
+
+        /* ---- BOTTOM NAV (App Like) ---- */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between;
+            padding: 12px 25px; border-radius: 25px; z-index: 9999;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.3s ease;
+        }
+        .bottom-nav.hidden { transform: translateX(-50%) translateY(200%); }
+
+        .nav-item { 
+            text-decoration: none; color: #94a3b8; display: flex; flex-direction: column; 
+            align-items: center; gap: 4px; font-size: 0.7rem; transition: var(--transition); font-weight: 500;
+            flex: 1;
+        }
+        .nav-item i { font-size: 1.3rem; transition: 0.3s; }
+        .nav-item.active { color: var(--primary-blue); }
+        .nav-item.active i { transform: translateY(-2px); }
+        .nav-item:hover { color: var(--primary-blue); }
+        .nav-item.has-badge { position: relative; }
+        .nav-item.has-badge::after {
+            content: ''; position: absolute; top: 0; right: 25%;
+            width: 8px; height: 8px; background: var(--accent-pink);
+            border-radius: 50%; border: 2px solid #fff;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.8rem; }
+            .header-actions .signin-btn span { display: none; }
+            .header-actions .signin-btn { padding: 8px; width: 40px; height: 40px; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="header">
+   <a href="index.html" class="logo-container">
+       <img src="assets/images/logo.png" alt="DuoGlobal Logo">
+       <h1 class="logo-title">Duo<span>Global</span></h1>
+   </a>
+   
+   <div class="header-actions">
+       <a href="login.html" class="signin-btn">
+           <i class="fas fa-user"></i>
+           <span>Sign In</span>
+       </a>
+   </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge reveal active">
+            <i class="fas fa-check-circle"></i> Verified International Profiles
+        </div>
+        <h1 class="hero-title reveal active">
+            Borders Divide Us.<br>Love Connects Us.
+        </h1>
+        <p class="hero-subtitle reveal active">
+            The premier agency connecting African elegance with global gentlemen. curated, secure, and serious.
+        </p>
+        <div class="hero-cta-group reveal active">
+            <a href="register.html" class="btn-primary">
+                Create Free Profile <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+    <div class="section-header reveal">
+        <span class="section-tag">The Process</span>
+        <h2 class="section-title">Your Journey to Love</h2>
+    </div>
+    <div class="steps-wrapper reveal">
+        <div class="step-box">
+            <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+            <div class="step-title">1. Create Profile</div>
+            <div class="step-desc">Register securely and tell us about yourself. Verification is required for safety.</div>
+        </div>
+        <div class="step-box">
+            <div class="step-icon"><i class="fas fa-search-heart"></i></div>
+            <div class="step-title">2. Browse Gentlemen</div>
+            <div class="step-desc">View our curated list of serious men from USA, UK, Europe, and beyond.</div>
+        </div>
+        <div class="step-box">
+            <div class="step-icon"><i class="fas fa-lock-open"></i></div>
+            <div class="step-title">3. Secure Connection</div>
+            <div class="step-desc">Pay a small commitment fee to unlock direct contact details (WhatsApp/Email).</div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED PROFILES (Dynamic) -->
+<section class="section alt-bg" id="featured">
+    <div class="section-header reveal">
+        <span class="section-tag">New Arrivals</span>
+        <h2 class="section-title">Latest Gentlemen</h2>
+    </div>
+    <div class="grid-container" id="profilesContainer">
+        <div style="text-align: center; width: 100%; grid-column: 1/-1; padding: 40px;">
+            <i class="fas fa-circle-notch fa-spin" style="color: var(--primary-blue); font-size: 2em;"></i>
+            <p style="margin-top: 10px; color: #999;">Loading profiles...</p>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="dashboard.html" class="btn-connect" style="display: inline-flex; width: auto; background: var(--primary-blue); color: #fff;">View All Profiles</a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="main-footer">
+    <div class="footer-content">
+        <h2 class="logo-title" style="color: #fff; margin-bottom: 20px;">Duo<span>Global</span></h2>
+        <p style="color: #94a3b8; max-width: 500px; margin: 0 auto;">
+            We are a premium matchmaking agency committed to creating serious international relationships. Safety and privacy are our top priorities.
+        </p>
+        <div class="footer-links">
+            <a href="about.html">About Us</a>
+            <a href="safety.html">Safety Tips</a>
+            <a href="terms.html">Terms of Service</a>
+            <a href="contact.html">Contact Support</a>
+        </div>
+        <div style="color: #555; font-size: 0.8rem;">
+            &copy; 2024 DuoGlobal Agency. All Rights Reserved.
+        </div>
+    </div>
+</footer>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+    <a href="index.html" class="nav-item active">
+        <i class="fas fa-home"></i> <span>Home</span>
+    </a>
+    <a href="dashboard.html" class="nav-item">
+        <i class="fas fa-search"></i> <span>Browse</span>
+    </a>
+    <a href="my-connections.html" class="nav-item has-badge">
+        <i class="fas fa-heart"></i> <span>Matches</span>
+    </a>
+    <a href="chat.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i> <span>Chat</span>
+    </a>
+    <a href="user-profile.html" class="nav-item">
+        <i class="fas fa-user-circle"></i> <span>Profile</span>
+    </a>
+</nav>
+
+<!-- PWA INSTALL POPUP (From Epoch19) -->
+<div id="pwa-install-popup" style="display: none; position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #fff; border: 1px solid var(--primary-blue); border-radius: 20px; padding: 20px; z-index: 3000; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+        <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--primary-gradient); display: grid; place-items: center; font-size: 1.5rem; color: #fff;"><i class="fas fa-download"></i></div>
+        <div><div style="font-weight:700; color:var(--text-dark); font-size:1rem;">Install DuoGlobal</div><div style="font-size:0.8rem; color:#64748b;">Add to home screen for quick access.</div></div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="installPWA()" style="flex: 2; padding: 10px; background: var(--primary-gradient); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; color: #fff;">Install</button>
+        <button onclick="dismissPWA()" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); border-radius: 10px; color: var(--text-grey); cursor: pointer;">Later</button>
+    </div>
+</div>
+
+<!-- FIREBASE SCRIPTS -->
+<script type="module">
+    import { auth, db } from './config.js'; 
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+    import { collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+    onAuthStateChanged(auth, (user) => {
+        const signinBtn = document.querySelector('.signin-btn');
+        if (signinBtn) {
+            if (user) {
+                signinBtn.href = "user-profile.html";
+                signinBtn.innerHTML = '<i class="fas fa-user-check"></i><span>Profile</span>';
+            } else {
+                signinBtn.href = "login.html";
+                signinBtn.innerHTML = '<i class="fas fa-user"></i><span>Sign In</span>';
+            }
+        }
+        loadProfiles();
+    });
+
+    async function loadProfiles() {
+        const container = document.getElementById('profilesContainer');
+        try {
+            const q = query(collection(db, 'men_profiles'), orderBy('createdAt', 'desc'), limit(3));
+            const querySnapshot = await getDocs(q);
+            
+            container.innerHTML = '';
+            
+            if (querySnapshot.empty) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">No profiles available yet.</div>`;
+                return;
+            }
+
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const imgUrl = data.photoURL || 'assets/images/placeholder-man.jpg'; 
+                
+                const html = `
+                <div class="profile-card reveal active">
+                    <div class="card-img-wrap">
+                        <img src="${imgUrl}" alt="Profile">
+                        <div class="blur-overlay">
+                            <span style="color:white; font-size: 0.9rem; font-weight:600;">
+                                <i class="fas fa-map-marker-alt"></i> ${data.nationality || 'International'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-meta">
+                            <span class="card-title">${data.occupation || 'Professional'}</span>
+                            <span style="font-size: 1.2rem;">${data.flagEmoji || '🌍'}</span>
+                        </div>
+                        <div class="card-subtitle">
+                            <i class="fas fa-user-clock"></i> ${data.age} Years Old • Serious Relationship
+                        </div>
+                        <a href="profile-view.html?id=${docSnap.id}" class="btn-connect">
+                            See Details <i class="fas fa-lock" style="font-size: 0.8em"></i>
+                        </a>
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+        } catch (e) {
+            console.error("Error loading profiles", e);
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: red;">Error loading profiles.</div>`;
+        }
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Header & Bottom Nav Scroll Effect (Auto-Hide)
+        const header = document.getElementById('header');
+        const bottomNav = document.getElementById('bottomNav');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                header.classList.remove('hidden');
+                bottomNav.classList.remove('hidden');
+            } else {
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    // Scrolling DOWN
+                    header.classList.add('hidden');
+                    bottomNav.classList.add('hidden'); 
+                } else {
+                    // Scrolling UP
+                    header.classList.remove('hidden');
+                    bottomNav.classList.remove('hidden'); 
+                }
+            }
+            lastScroll = currentScroll;
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    });
+
+    // PWA LOGIC (From Epoch19)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => { 
+        e.preventDefault(); 
+        deferredPrompt = e; 
+        setTimeout(() => document.getElementById('pwa-install-popup').style.display = 'block', 3000); 
+    });
+    
+    window.installPWA = async () => { 
+        if(deferredPrompt) { 
+            deferredPrompt.prompt(); 
+            const {outcome} = await deferredPrompt.userChoice; 
+            if(outcome==='accepted') document.getElementById('pwa-install-popup').style.display = 'none'; 
+            deferredPrompt=null; 
+        }
+    };
+    
+    window.dismissPWA = () => document.getElementById('pwa-install-popup').style.display = 'none';
+    
+    if("serviceWorker" in navigator) navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+</script>
+
+</body>
+</html>
